@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hash_indice/configuration_model.dart';
+import 'package:hash_indice/model/info_model.dart';
+import 'package:hash_indice/model/result_model.dart';
 import 'package:hash_indice/service.dart';
 import 'package:hash_indice/table_model.dart';
 
@@ -31,13 +33,20 @@ class _HomePageState extends State<HomePage> {
   final textControllerBucket = TextEditingController();
   final textControllerChave = TextEditingController();
   final Service service = Service();
-  TableModel tableModel = TableModel();
-  int costSize = 0;
+  ResultModel model = ResultModel(
+      access: null,
+      colisions: null,
+      overflow: null,
+      countRegistro: null,
+      buckets: null,
+      bucketLimit: null,
+      size: null
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Indice Hash App'),
+          title: const Text('Indice Hash App'),
         ),
         body: SingleChildScrollView(
           child: Column(children: [
@@ -45,8 +54,8 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(16.0),
               child: TextFormField(
                 controller: textControllerPagina,
-                decoration: InputDecoration(
-                  label: Text("Tamanho da pagina"),
+                decoration: const InputDecoration(
+                  label: Text("Tamanho da pagina"), // page_size
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -55,46 +64,34 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(16.0),
               child: TextFormField(
                   controller: textControllerBucket,
-                  decoration: InputDecoration(
-                    label: Text("Tamanho do bucket"),
+                  decoration: const InputDecoration(
+                    label: Text("Tamanho do bucket"), // limit
                     border: OutlineInputBorder(),
                   )),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await service.postConfiguration(ConfigurationModel(
-                    pageSize: textControllerPagina.text,
-                    bucketSize: textControllerBucket.text)).then((value) => print(value));
-              },
-              child: Text("Confirmar"),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextFormField(
                   controller: textControllerChave,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     label: Text("Chave de busca"),
                     border: OutlineInputBorder(),
                   )),
             ),
             ElevatedButton(
               onPressed: () async {
-                await service.getSearch(textControllerChave.text).then((value) {
-                  print(value);
+                await service.getInfo(InfoModel(
+                    limit: double.parse(textControllerBucket.text),
+                    page_size: double.parse(textControllerPagina.text),
+                    value: textControllerChave.text
+                )).then((value) {
                   setState(() {
                     print(value);
-                    costSize = value.cost!;
+                    model = value;
                   });
                 });
-                await service.getTable().then((value) {
-                  print(value);
-                  setState(() {
-                    tableModel = value;
-                  });
-                });
-
               },
-              child: Text("Procurar"),
+              child: const Text("Confirmar"),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -116,8 +113,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Center(
-                              child: Text(
-                            tableModel.pageSize.toString(),
+                            child: Text(
+                            model.size.toString(),
                             style: TextStyle(fontSize: 128),
                           )),
                           Spacer(),
@@ -138,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Text(
-                            tableModel.bucketSize.toString() ,
+                            model.buckets.toString() ,
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
@@ -159,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Text(
-                            tableModel.colisionCount.toString(),
+                            model.colisions.toString(),
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
@@ -180,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Text(
-                            tableModel.overflowCount.toString(),
+                            model.overflow.toString(),
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
@@ -201,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Text(
-                            tableModel.readSize.toString(),
+                            model.readSize.toString(),
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
@@ -222,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Spacer(),
                           Text(
-                            costSize.toString(),
+                            model.countRegistro.toString(),
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
@@ -238,12 +235,12 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: Text("Quantidade de buckets"),
                           ),
                           Spacer(),
                           Text(
-                            tableModel.bucketNumber.toString(),
+                            model.buckets.toString(),
                             style: TextStyle(fontSize: 128),
                           ),
                           Spacer(),
