@@ -157,7 +157,7 @@ def helpBusca(hashBusca, i, count, value):
             helpBusca(hashBusca, i.get_nextBucket(), count, value)
 
 
-def createDB(bucketLimit, size, value ):
+def createDB(bucketLimit, size, value):
     raw = parser.from_file('words.txt')
     lines = raw['content'].split()
 
@@ -169,25 +169,27 @@ def createDB(bucketLimit, size, value ):
     page = Page()
     for l in lines:
         countRegistro += 1
+        cont += 1
         tupla = Tupla(l)
         tuplas.append(tupla)
         if(size == cont):
             page.set_tuplas(tuplas)
             page.set_id(id)
             id += 1
-            cont = -1
+            cont = 0
             pages.append(page)
             page = Page()
             tuplas = []
-        cont += 1
-        if(cont > 0):
-            page.set_tuplas(tuplas)
-            page.set_id(id)
-            pages.append(page)
+        
+    if(cont > 0):
+        page.set_tuplas(tuplas)
+        page.set_id(id)
+        pages.append(page)
 
     buckets = []
 
     for page in pages:
+
         for tupla in page.get_tuplas():
             newb = True
             v = hash(tupla.get_nome())
@@ -222,15 +224,16 @@ def home():
     value = request.get_json()['value']
     limit = request.get_json()['limit']
     pageSize = request.get_json()['page_size']
-    x, somaColisoes, somaOverflow, countRegistro, buckets, bucketLimit, size = createDB(limit,pageSize,value)
+    x, somaColisoes, somaOverflow, countRegistro, buckets, bucketLimit, size = createDB(
+        limit, pageSize, value)
     return jsonify({'access': x,
                     'colisions': somaColisoes,
                     'overflow': somaOverflow,
-                    'countRegistro' : countRegistro,
-                    'buckets' : buckets,
-                    'bucketLimit' : bucketLimit,
-                    'size' :size
-                     }), 201
+                    'countRegistro': countRegistro,
+                    'buckets': buckets,
+                    'bucketLimit': bucketLimit,
+                    'size': size
+                    }), 201
 
 
 app.run()
