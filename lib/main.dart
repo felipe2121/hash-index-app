@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: GridView.count(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 crossAxisCount: 2,
                 children: [
@@ -107,17 +107,17 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
                             child: Text("Tamanho da pagina"),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Center(
                             child: Text(
                             model.size.toString(),
-                            style: TextStyle(fontSize: 128),
+                            style: const TextStyle(fontSize: 64),
                           )),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -129,16 +129,16 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
                             child: Text("Tamanho do bucket"),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
-                            model.buckets.toString() ,
-                            style: TextStyle(fontSize: 128),
+                            model.bucketLimit.toString() ,
+                            style: const TextStyle(fontSize: 64),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -150,16 +150,16 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Numero de colisões"),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: const Text("Numero de colisões"),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             model.colisions.toString(),
-                            style: TextStyle(fontSize: 128),
+                            style: const TextStyle(fontSize: 64),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -171,16 +171,16 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
                             child: Text("Numero de overflows"),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             model.overflow.toString(),
-                            style: TextStyle(fontSize: 128),
+                            style: const TextStyle(fontSize: 64),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -192,37 +192,16 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Quantidade de registros"),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: const Text("Quantidade de registros"),
                           ),
-                          Spacer(),
-                          Text(
-                            model.readSize.toString(),
-                            style: TextStyle(fontSize: 128),
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 8,
-                    child: Container(
-                      height: 100,
-                      width: 100,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text("Custo de leitura"),
-                          ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             model.countRegistro.toString(),
-                            style: TextStyle(fontSize: 128),
+                            style: const TextStyle(fontSize: 64),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -234,16 +213,37 @@ class _HomePageState extends State<HomePage> {
                       width: 100,
                       child: Column(
                         children: [
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text("Quantidade de buckets"),
+                            child: const Text("Custo de leitura"),
                           ),
-                          Spacer(),
+                          const Spacer(),
+                          Text(
+                            model.access.toString(),
+                            style: const TextStyle(fontSize: 64),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Card(
+                    elevation: 8,
+                    child: Container(
+                      height: 100,
+                      width: 100,
+                      child: Column(
+                        children: [
+                          const Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: const Text("Quantidade de buckets"),
+                          ),
+                          const Spacer(),
                           Text(
                             model.buckets.toString(),
-                            style: TextStyle(fontSize: 128),
+                            style: const TextStyle(fontSize: 64),
                           ),
-                          Spacer(),
+                          const Spacer(),
                         ],
                       ),
                     ),

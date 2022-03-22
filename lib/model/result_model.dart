@@ -1,11 +1,11 @@
 class ResultModel {
-  double? access;
-  double? colisions;
-  double? overflow;
-  double? countRegistro;
-  double? buckets;
-  double? bucketLimit;
-  double? size;
+  num? access;
+  num? colisions;
+  num? overflow;
+  num? countRegistro;
+  num? buckets;
+  num? bucketLimit;
+  num? size;
 
   ResultModel({
     required this.access,
