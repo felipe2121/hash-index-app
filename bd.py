@@ -1,7 +1,8 @@
 from tika import parser
 import math
 import flask
-from flask import request, jsonify
+from flask import request, jsonify, session
+from flask_session import Session
 
 
 class Tupla:
@@ -123,8 +124,7 @@ def hash(tupla):
     aux = list(tupla)
     for x in aux:
         h += ord(x)
-    h /= 3
-    return round(h)
+    return int(str(h)[:3])
 
 
 def next(bucket, bucketLimit, tupla, buckets):
@@ -138,26 +138,29 @@ def next(bucket, bucketLimit, tupla, buckets):
             bucket.set_nextBucket(nextbucket)
 
 
-def busca(value, buckets):
-    hashBusca = hash(value)
-    count = 0
-    for i in buckets:
+def busca(i, count, value):
+    for x in i.get_tuplas():
         count += 1
-        helpBusca(hashBusca, i, count, value)
-    return count
+        if x.get_nome() == value:
+            return True,count
+    if i.get_nextBucket() != None:
+        helpBusca(i.get_nextBucket(), count)
+    else:
+        return False, count
 
 
-def helpBusca(hashBusca, i, count, value):
-    if hashBusca == i.get_value():
-        for x in i.get_tuplas():
-            count += 1
-            if x.get_nome() == value:
-                print("achou a tupla")
-        if i.get_nextBucket() != None:
-            helpBusca(hashBusca, i.get_nextBucket(), count, value)
+def helpBusca(i, count):
+    for x in i.get_tuplas():
+        count += 1
+        if x.get_nome() == value:
+            return true,count
+    if i.get_nextBucket() != None:
+        helpBusca(i.get_nextBucket(), count)
+    else:
+        return false,count
 
 
-def createDB(bucketLimit, size, value):
+def createDB(bucketLimit, size):
     raw = parser.from_file('words.txt')
     lines = raw['content'].split()
 
@@ -180,59 +183,76 @@ def createDB(bucketLimit, size, value):
             pages.append(page)
             page = Page()
             tuplas = []
-        
+
     if(cont > 0):
         page.set_tuplas(tuplas)
         page.set_id(id)
         pages.append(page)
 
-    buckets = []
+    buckets = [None] * 1000
 
     for page in pages:
-
         for tupla in page.get_tuplas():
-            newb = True
             v = hash(tupla.get_nome())
-            for bucket in buckets:
-                if(bucket.get_value() == v):
-                    newb = False
-                    next(bucket, bucketLimit, tupla, buckets)
-
-            if(newb):
+            if(buckets[v] != None):
+                next(bucket, bucketLimit, tupla, buckets)
+            else:
                 bucket = Bucket([tupla], None, 1, 0, 0, v)
-                buckets.append(bucket)
+                buckets[v] = bucket
 
     table = Table(pages, 0)
     database = Database(table, buckets)
-    x = busca(value, database.get_buckets())
     somaColisoes = 0
     somaOverflow = 0
     for o in buckets:
-        somaColisoes += o.get_colision()
-        somaOverflow += o.get_overflow()
+        if o != None:
+            somaColisoes += o.get_colision()
+            somaOverflow += o.get_overflow()
 
-    return x, somaColisoes, somaOverflow, countRegistro, len(buckets), bucketLimit, size
+    return somaColisoes, somaOverflow, countRegistro, len(buckets), bucketLimit, size, database
+
+
+def find(value, database):
+    h = hash(value)
+    contador = 0
+    print(database.get_buckets()[h].get_tuplas()[0])
+    x, cout = busca(database.get_buckets()[h], contador, value)
+    return x, cout
 
 
 app = flask.Flask(__name__)
+SESSION_TYPE = 'filesystem'
+app.config.from_object(__name__)
 app.config["DEBUG"] = True
+Session(app)
+
+
+@app.route('/config', methods=['POST'])
+def home():
+
+    limit = request.get_json()['limit']
+    pageSize = request.get_json()['page_size']
+    somaColisoes, somaOverflow, countRegistro, buckets, bucketLimit, size, database = createDB(
+        limit, pageSize)
+    session['key'] = database
+    return jsonify({
+        'colisions': somaColisoes,
+        'overflow': somaOverflow,
+        'countRegistro': countRegistro,
+        'buckets': buckets,
+        'bucketLimit': bucketLimit,
+        'size': size
+    }), 201
 
 
 @app.route('/busca', methods=['POST'])
-def home():
+def busca_request():
 
     value = request.get_json()['value']
-    limit = request.get_json()['limit']
-    pageSize = request.get_json()['page_size']
-    x, somaColisoes, somaOverflow, countRegistro, buckets, bucketLimit, size = createDB(
-        limit, pageSize, value)
-    return jsonify({'access': x,
-                    'colisions': somaColisoes,
-                    'overflow': somaOverflow,
-                    'countRegistro': countRegistro,
-                    'buckets': buckets,
-                    'bucketLimit': bucketLimit,
-                    'size': size
+    a = session.get('key', 'not set')
+    x, contador = find(value, a)
+    return jsonify({'access': contador,
+                    'found': x
                     }), 201
 
 
